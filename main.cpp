@@ -11,6 +11,7 @@ const int SCREEN_HEIGHT = 480;
 SDL_Window* gWindow = NULL;
 SDL_Surface* gScreenSurface = NULL;
 SDL_Surface* gHelloWorld = NULL;
+SDL_Surface* gXOut = NULL;
 
 bool init();
 bool loadMedia();
@@ -23,9 +24,17 @@ int main(int argc, char* args[]) {
         if (!loadMedia()) {
             printf("Failed to load media!\n");
         } else {
-            SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL);
-            SDL_UpdateWindowSurface(gWindow);
-            SDL_Delay(5000);
+            bool quit = false;
+            SDL_Event e;
+            while(!quit) {
+                while(SDL_PollEvent(&e)) {
+                    if (e.type == SDL_QUIT) {
+                        quit = true;
+                    }
+                }
+                SDL_BlitSurface(gXOut, NULL, gScreenSurface, NULL);
+                SDL_UpdateWindowSurface(gWindow);
+            }
         }
     }
 
@@ -61,12 +70,19 @@ bool loadMedia() {
         success = false;
     }
 
+    gXOut = SDL_LoadBMP("../assets/x.bmp");
+    if(gXOut == NULL) {
+        printf("Unable to load image %s! SDL Error: %s\n", "assets/hello_world.bmp", SDL_GetError());
+        success = false;
+    }
+
     return success;
 }
 
 void close() {
     SDL_FreeSurface(gHelloWorld);
     gHelloWorld = NULL;
+    gXOut = NULL;
 
     SDL_DestroyWindow(gWindow);
     gWindow = NULL;
